@@ -28,15 +28,3 @@ stages:
           - script: |
               npm install -g @usebruno/cli
             displayName: 'Install Bruno CLI'
-
-          - script: |
-              cd bruno-collection-e2e-demo
-              bru run --env Demo-Env "Product Update Flow" --reporter-html results.html
-            displayName: 'Run API Tests'
-
-          - task: PublishBuildArtifacts@1
-            displayName: 'Upload Test Results'
-            inputs:
-              pathtoPublish: 'bruno-collection-e2e-demo/results.html'
-              artifactName: 'test-results'
-              publishLocation: 'Container'
