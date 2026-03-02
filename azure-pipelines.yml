@@ -1,0 +1,42 @@
+# azure-pipelines.yml
+trigger:
+  - main
+
+pr:
+  - main
+
+pool:
+  vmImage: 'windows-latest'
+
+stages:
+  - stage: BuildAndTest
+    displayName: 'Build and Test'
+    jobs:
+      - job: Build
+        displayName: 'Build'
+        steps:
+          - checkout: self
+
+          - script: echo "Azure Pipelines Execution - Build and Test the repo"
+            displayName: 'Run a one-line script'
+
+          - task: NodeTool@0
+            displayName: 'Use Node.js 20'
+            inputs:
+              versionSpec: '20.x'
+
+          - script: |
+              npm install -g @usebruno/cli
+            displayName: 'Install Bruno CLI'
+
+          - script: |
+              cd bruno-collection-e2e-demo
+              bru run --env Demo-Env "Product Update Flow" --reporter-html results.html
+            displayName: 'Run API Tests'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Upload Test Results'
+            inputs:
+              pathtoPublish: 'bruno-collection-e2e-demo/results.html'
+              artifactName: 'test-results'
+              publishLocation: 'Container'
