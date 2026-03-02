@@ -21,9 +21,9 @@ stages:
             displayName: 'Run a one-line script'
 
           - task: NodeTool@0
-            displayName: 'Use Node.js 20'
+            displayName: 'Use Node.js 24'
             inputs:
-              versionSpec: '20.x'
+              versionSpec: '24.x'
 
           - script: |
               npm install -g @usebruno/cli
