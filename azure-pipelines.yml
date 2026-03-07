@@ -25,6 +25,14 @@ stages:
             inputs:
               versionSpec: '24.x'
 
+          - task: Cache@2
+            displayName: 'Cache node_modules'
+            inputs:
+              key: 'node_modules | "$(Agent.OS)" | package-lock.json'
+              restoreKeys: |
+                node_modules | "$(Agent.OS)"
+              path: '$(Build.SourcesDirectory)/node_modules'
+
           - script: |
               npm install -g @usebruno/cli
             displayName: 'Install Bruno CLI'
