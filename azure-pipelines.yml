@@ -32,7 +32,13 @@ stages:
               restoreKeys: |
                 node_modules | "$(Agent.OS)"
               path: '$(Build.SourcesDirectory)/node_modules'
+              cacheHitVar: 'NODE_MODULES_CACHE_RESTORED'
 
           - script: |
-              npm install -g @usebruno/cli
-            displayName: 'Install Bruno CLI'
+              npm ci
+            displayName: 'Install dependencies'
+            condition: ne(variables.NODE_MODULES_CACHE_RESTORED, 'true')
+
+          - script: |
+              npx bru --version
+            displayName: 'Use local Bruno CLI'
