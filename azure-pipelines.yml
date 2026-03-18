@@ -8,9 +8,6 @@ pr:
 pool:
   vmImage: 'windows-latest'
 
-variables:
-  PNPM_STORE_PATH: '$(Pipeline.Workspace)/.pnpm-store'
-
 stages:
   - stage: BuildAndTest
     displayName: 'Build and Test'
@@ -28,34 +25,9 @@ stages:
             inputs:
               versionSpec: '24.x'
 
-          - task: Cache@2
-            displayName: 'Cache pnpm store'
-            inputs:
-              key: 'pnpm | "$(Agent.OS)" | pnpm-lock.yaml'
-              restoreKeys: |
-                pnpm | "$(Agent.OS)"
-              path: '$(PNPM_STORE_PATH)'
-
           - pwsh: |
-              corepack pnpm config set store-dir "$env:PNPM_STORE_PATH"
               corepack pnpm install --frozen-lockfile
             displayName: 'Install dependencies with pnpm'
-
-          - pwsh: |
-              Write-Host "Node version:"
-              node --version
-              Write-Host "pnpm version:"
-              corepack pnpm --version
-              Write-Host "Bruno resolved path:"
-              $bru = (node -p "require.resolve('@usebruno/cli/bin/bru.js')").Trim()
-              Write-Host $bru
-              Write-Host "Bruno path exists:"
-              Test-Path $bru
-              Write-Host "node_modules/.bin contents:"
-              Get-ChildItem .\node_modules\.bin | Select-Object Name
-              Write-Host "First pnpm package entries:"
-              Get-ChildItem .\node_modules\.pnpm | Select-Object -First 20 Name
-            displayName: 'Debug pnpm and Bruno layout'
 
           - pwsh: |
               $bruCmd = ".\node_modules\.bin\bru.CMD"
