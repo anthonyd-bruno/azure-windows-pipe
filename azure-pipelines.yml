@@ -42,5 +42,5 @@ stages:
             displayName: 'Install dependencies with pnpm'
 
           - script: |
-              corepack pnpm exec bru --version
+              node ./node_modules/@usebruno/cli/bin/bru.js --version
             displayName: 'Use local Bruno CLI'
