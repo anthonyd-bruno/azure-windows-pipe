@@ -36,11 +36,31 @@ stages:
                 pnpm | "$(Agent.OS)"
               path: '$(PNPM_STORE_PATH)'
 
-          - script: |
-              corepack pnpm config set store-dir "$(PNPM_STORE_PATH)"
+          - pwsh: |
+              corepack pnpm config set store-dir "$env:PNPM_STORE_PATH"
               corepack pnpm install --frozen-lockfile
             displayName: 'Install dependencies with pnpm'
 
-          - script: |
-              node ./node_modules/@usebruno/cli/bin/bru.js --version
+          - pwsh: |
+              Write-Host "Node version:"
+              node --version
+              Write-Host "pnpm version:"
+              corepack pnpm --version
+              Write-Host "Bruno resolved path:"
+              $bru = (node -p "require.resolve('@usebruno/cli/bin/bru.js')").Trim()
+              Write-Host $bru
+              Write-Host "Bruno path exists:"
+              Test-Path $bru
+              Write-Host "node_modules/.bin contents:"
+              Get-ChildItem .\node_modules\.bin | Select-Object Name
+              Write-Host "First pnpm package entries:"
+              Get-ChildItem .\node_modules\.pnpm | Select-Object -First 20 Name
+            displayName: 'Debug pnpm and Bruno layout'
+
+          - pwsh: |
+              $bru = (node -p "require.resolve('@usebruno/cli/bin/bru.js')").Trim()
+              if (-not (Test-Path $bru)) {
+                throw "Bruno CLI entrypoint not found: $bru"
+              }
+              & node $bru --help
             displayName: 'Use local Bruno CLI'
