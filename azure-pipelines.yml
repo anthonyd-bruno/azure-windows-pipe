@@ -58,9 +58,16 @@ stages:
             displayName: 'Debug pnpm and Bruno layout'
 
           - pwsh: |
+              $bruCmd = ".\node_modules\.bin\bru.CMD"
+              if (Test-Path $bruCmd) {
+                & $bruCmd --help
+                exit $LASTEXITCODE
+              }
+
               $bru = (node -p "require.resolve('@usebruno/cli/bin/bru.js')").Trim()
               if (-not (Test-Path $bru)) {
                 throw "Bruno CLI entrypoint not found: $bru"
               }
               & node $bru --help
+              exit $LASTEXITCODE
             displayName: 'Use local Bruno CLI'
