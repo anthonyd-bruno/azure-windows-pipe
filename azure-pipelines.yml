@@ -8,6 +8,9 @@ pr:
 pool:
   vmImage: 'windows-latest'
 
+variables:
+  PNPM_STORE_PATH: '$(Pipeline.Workspace)/.pnpm-store'
+
 stages:
   - stage: BuildAndTest
     displayName: 'Build and Test'
@@ -26,19 +29,18 @@ stages:
               versionSpec: '24.x'
 
           - task: Cache@2
-            displayName: 'Cache node_modules'
+            displayName: 'Cache pnpm store'
             inputs:
-              key: 'node_modules | "$(Agent.OS)" | package-lock.json'
+              key: 'pnpm | "$(Agent.OS)" | pnpm-lock.yaml'
               restoreKeys: |
-                node_modules | "$(Agent.OS)"
-              path: '$(Build.SourcesDirectory)/node_modules'
-              cacheHitVar: 'NODE_MODULES_CACHE_RESTORED'
+                pnpm | "$(Agent.OS)"
+              path: '$(PNPM_STORE_PATH)'
 
           - script: |
-              npm ci
-            displayName: 'Install dependencies'
-            condition: ne(variables.NODE_MODULES_CACHE_RESTORED, 'true')
+              corepack pnpm config set store-dir "$(PNPM_STORE_PATH)"
+              corepack pnpm install --frozen-lockfile
+            displayName: 'Install dependencies with pnpm'
 
           - script: |
-              npx bru --version
+              corepack pnpm exec bru --version
             displayName: 'Use local Bruno CLI'
